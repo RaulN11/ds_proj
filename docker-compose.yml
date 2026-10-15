@@ -1,0 +1,56 @@
+services:
+  user-db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ${DB1_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes: [user-db-data:/var/lib/postgresql/data]
+
+  device-db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ${DB2_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes: [device-db-data:/var/lib/postgresql/data]
+
+  auth-db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ${DB3_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes: [auth-db-data:/var/lib/postgresql/data]
+
+  user-service:
+    build: ./User-Management
+    depends_on: [user-db]
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://user-db:5432/${DB1_NAME}
+      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+    ports: ["8081:8080"]
+
+  device-service:
+    build: ./Device-Management
+    depends_on: [device-db]
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://device-db:5432/${DB2_NAME}
+      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+    ports: ["8082:8080"]
+
+  auth-service:
+    build: ./Authentication
+    depends_on: [auth-db]
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://auth-db:5432/${DB3_NAME}
+      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+    ports: ["8083:8080"]
+
+volumes:
+  user-db-data:
+  device-db-data:
+  auth-db-data:
