@@ -22,7 +22,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<?> addUser(@RequestBody User user){
+    public ResponseEntity<?> createUser(@RequestBody User user){
         if(userService.exists(user.getUsername())){
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Username already exists");
         }
