@@ -48,7 +48,9 @@ public class AuthenticationController {
             UserDTO userDto = new UserDTO();
             userDto.setId(c.getId());
             userDto.setUsername(c.getUsername());
+            userDto.setName(req.getName());
             userDto.setEmail(req.getEmail());
+            userDto.setAge(req.getAge());
             userDto.setRole(c.getRole());
             userService.createUser(userDto);
         } catch (Exception e) {

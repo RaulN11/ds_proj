@@ -15,7 +15,7 @@ import java.util.Date;
 public class JWTService {
     private final SecretKey key;
     private final long expirationTimeMs;
-    public JWTService(@Value("${JWT_SECRET")String secret, @Value("${JWT_EXPIRATIONTIMEMS}") long expirationTimeMs){
+    public JWTService(@Value("${JWT_SECRET}")String secret, @Value("${JWT_EXPIRATIONTIMEMS}") long expirationTimeMs){
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.expirationTimeMs = expirationTimeMs;
     }

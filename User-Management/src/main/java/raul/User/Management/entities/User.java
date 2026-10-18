@@ -15,11 +15,9 @@ public class User {
     private UUID id;
     @Column(nullable = false, unique = true)
     private String username;
-    @Column(nullable = false)
-    private String password;
     private String name;
     private String email;
-    private int age;
+    private Integer age;
     private String role = "CLIENT";
 
 
