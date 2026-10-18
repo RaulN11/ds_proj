@@ -5,11 +5,10 @@ export const setToken = (t) => { token = t }
 export const onLog = (fn) => { listener = fn }
 
 const serviceOf = (url) =>
-  url.startsWith('/auth') ? 'auth-service'
-  : url.startsWith('/users') ? 'user-service'
-  : url.startsWith('/devices') ? 'device-service' : '?'
+    url.startsWith('/auth') ? 'auth-service'
+        : url.startsWith('/users') ? 'user-service'
+            : url.startsWith('/devices') ? 'device-service' : '?'
 
-// Every request goes through here, so the Log panel can show what is called.
 export async function api(method, url, body) {
   const t0 = performance.now()
   const res = await fetch(url, {
@@ -31,6 +30,7 @@ export async function api(method, url, body) {
     service: serviceOf(url), body, data,
   })
 
+  if (res.status === 401 && token) window.dispatchEvent(new Event('unauthorized')) // expired/invalid token
   if (!res.ok) {
     throw new Error((data && (data.message || data.error)) || (typeof data === 'string' && data) || `HTTP ${res.status}`)
   }
