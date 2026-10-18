@@ -12,6 +12,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final DeviceService deviceService;
+    private final AuthService authService;
 
     public List<User> findAll(){
         return userRepository.findAll();
@@ -32,19 +34,24 @@ public class UserService {
         return userRepository.findByUsername(username);
     }
 
-    public User updateUser(UUID id, User userDetails) {
+    public User updateUser(UUID id, User details) {
         User user = userRepository.findById(id).orElse(null);
-        if (user != null) {
-            user.setUsername(userDetails.getUsername());
-            user.setPassword(userDetails.getPassword());
-            user.setEmail(userDetails.getEmail());
-            user.setRole(userDetails.getRole());
-            return userRepository.save(user);
-        }
-        return null;
+        if (user == null) return null;
+        user.setName(details.getName());
+        user.setEmail(details.getEmail());
+        user.setAge(details.getAge());
+        return userRepository.save(user);
     }
 
-    public void deleteUser(UUID id) {
+    public boolean deleteUser(UUID id) {
+        if (!userRepository.existsById(id)) return false;
         userRepository.deleteById(id);
+        try { deviceService.unassignDevices(id); } catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+        try { authService.deleteCredentials(id); } catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+        return true;
     }
 }

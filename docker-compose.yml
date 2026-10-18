@@ -30,6 +30,8 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://user-db:5432/${DB1_NAME}
       SPRING_DATASOURCE_USERNAME: ${DB_USER}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      DEVICE_SERVICE_URL: http://device-service:8080
+      AUTH_SERVICE_URL: http://auth-service:8080
     ports: ["8081:8080"]
 
   device-service:
@@ -39,6 +41,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://device-db:5432/${DB2_NAME}
       SPRING_DATASOURCE_USERNAME: ${DB_USER}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      USER_SERVICE_URL: http://user-service:8080
     ports: ["8082:8080"]
 
   auth-service:
@@ -48,7 +51,15 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://auth-db:5432/${DB3_NAME}
       SPRING_DATASOURCE_USERNAME: ${DB_USER}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATIONTIMEMS: ${JWT_EXPIRATIONTIMEMS}
+      USER_MANAGEMENT_URL: http://user-service:8080
     ports: ["8083:8080"]
+
+  frontend:
+    build: ./frontend
+    depends_on: [auth-service, user-service, device-service]
+    ports: ["3000:80"]
 
 volumes:
   user-db-data:
