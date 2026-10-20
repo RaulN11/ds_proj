@@ -21,7 +21,7 @@ public class DeviceService {
 
     public Device createDevice(Device device) {
         device.setId(null);
-        device.setUserId(null); // assignment goes through assign()
+        device.setUserId(null);
         return deviceRepository.save(device);
     }
 
@@ -39,7 +39,7 @@ public class DeviceService {
     public Device assign(UUID deviceId, UUID userId) {
         Device device = findById(deviceId);
         if (device == null) return null;
-        if (!userService.exists(userId)) throw new IllegalArgumentException("User not found in user-management");
+        if (!userService.exists(userId)) throw new IllegalArgumentException("User not found");
         device.setUserId(userId);
         return deviceRepository.save(device);
     }

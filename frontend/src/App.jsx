@@ -3,7 +3,6 @@ import { setToken, onLog } from './api'
 import Login from './Login'
 import Admin from './Admin'
 import Client from './Client'
-import Log from './Log'
 import './styles.css'
 
 export default function App() {
@@ -49,7 +48,6 @@ export default function App() {
           {session?.role === 'ADMIN' && <Admin />}
           {session && session.role !== 'ADMIN' && <Client session={session} />}
         </main>
-        <Log logs={logs} />
       </div>
   )
 }
