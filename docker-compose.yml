@@ -8,7 +8,7 @@ services:
       - "--api.insecure=true"
     ports:
       - "80:80"
-      - "8080:8080"                     
+      - "8080:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
 
@@ -60,13 +60,17 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://device-db:5432/${DB2_NAME}
       SPRING_DATASOURCE_USERNAME: ${DB_USER}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
-      USER_SERVICE_URL: http://user-service:8080
     ports: ["8082:8080"]
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.devices.rule=PathPrefix(`/devices`)"
-      - "traefik.http.routers.devices.entrypoints=web"
-      - "traefik.http.routers.devices.middlewares=jwt-auth"
+      - "traefik.http.routers.devices-read.rule=PathPrefix(`/devices`) && Method(`GET`)"
+      - "traefik.http.routers.devices-read.entrypoints=web"
+      - "traefik.http.routers.devices-read.middlewares=jwt-auth"
+      - "traefik.http.routers.devices-read.service=devices"
+      - "traefik.http.routers.devices-write.rule=PathPrefix(`/devices`) && !Method(`GET`)"
+      - "traefik.http.routers.devices-write.entrypoints=web"
+      - "traefik.http.routers.devices-write.middlewares=admin-auth"
+      - "traefik.http.routers.devices-write.service=devices"
       - "traefik.http.services.devices.loadbalancer.server.port=8080"
 
   auth-service:
@@ -82,25 +86,13 @@ services:
     ports: ["8083:8080"]
     labels:
       - "traefik.enable=true"
-      # middlewares: Traefik asks auth-service to validate the JWT before forwarding
       - "traefik.http.middlewares.jwt-auth.forwardauth.address=http://auth-service:8080/auth/validate"
       - "traefik.http.middlewares.jwt-auth.forwardauth.authResponseHeaders=X-User-Id,X-User-Name,X-User-Role"
       - "traefik.http.middlewares.admin-auth.forwardauth.address=http://auth-service:8080/auth/validate-admin"
       - "traefik.http.middlewares.admin-auth.forwardauth.authResponseHeaders=X-User-Id,X-User-Name,X-User-Role"
-      # public routes: login and register only
       - "traefik.http.routers.auth.rule=Path(`/auth/login`) || Path(`/auth/register`)"
       - "traefik.http.routers.auth.entrypoints=web"
       - "traefik.http.services.auth.loadbalancer.server.port=8080"
-
-  frontend:
-    build: ./frontend
-    depends_on: [auth-service, user-service, device-service]
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.frontend.rule=PathPrefix(`/`)"
-      - "traefik.http.routers.frontend.priority=1"
-      - "traefik.http.routers.frontend.entrypoints=web"
-      - "traefik.http.services.frontend.loadbalancer.server.port=80"
 
 volumes:
   user-db-data:

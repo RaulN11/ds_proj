@@ -17,8 +17,13 @@ public class DeviceService {
         this.device = RestClient.create(deviceManagementUrl);
     }
 
-    public void unassignDevices(UUID userId) {
-        log.info("user-management -> device-management: unassign devices of {}", userId);
-        device.put().uri("/devices/user/{id}/unassign", userId).retrieve().toBodilessEntity();
+    public void createUser(UUID userId) {
+        log.info("user-management -> device-management: create user {}", userId);
+        device.post().uri("/internal/users/{id}", userId).retrieve().toBodilessEntity();
+    }
+
+    public void deleteUser(UUID userId) {
+        log.info("user-management -> device-management: delete user {}", userId);
+        device.delete().uri("/internal/users/{id}", userId).retrieve().toBodilessEntity();
     }
 }

@@ -24,7 +24,14 @@ public class UserService {
     }
 
     public User createUser(User user){
-        return userRepository.save(user);
+        User saved = userRepository.save(user);
+        try {
+            deviceService.createUser(saved.getId());
+        } catch (RuntimeException e) {
+            userRepository.delete(saved);
+            throw e;
+        }
+        return saved;
     }
     public User findById(UUID id) {
         return userRepository.findById(id).orElse(null);
@@ -46,7 +53,7 @@ public class UserService {
     public boolean deleteUser(UUID id) {
         if (!userRepository.existsById(id)) return false;
         userRepository.deleteById(id);
-        try { deviceService.unassignDevices(id); } catch (Exception e){
+        try { deviceService.deleteUser(id); } catch (Exception e){
             System.out.println(e.getMessage());
         }
         try { authService.deleteCredentials(id); } catch (Exception e){

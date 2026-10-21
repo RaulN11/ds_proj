@@ -50,10 +50,4 @@ public class DeviceService {
         device.setUserId(null);
         return deviceRepository.save(device);
     }
-
-    public void unassignAllOf(UUID userId) {
-        List<Device> devices = deviceRepository.findByUserId(userId);
-        devices.forEach(d -> d.setUserId(null));
-        deviceRepository.saveAll(devices);
-    }
 }

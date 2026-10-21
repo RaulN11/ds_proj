@@ -1,30 +1,37 @@
 package raul.Device_Management.services;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestClient;
+import org.springframework.transaction.annotation.Transactional;
+import raul.Device_Management.entities.Device;
+import raul.Device_Management.entities.User;
+import raul.Device_Management.repositories.DeviceRepository;
+import raul.Device_Management.repositories.UserRepository;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
-    private static final Logger log = LoggerFactory.getLogger(UserService.class);
-    private final RestClient users;
-
-    public UserService(@Value("${user.management.url}") String url) {
-        this.users = RestClient.create(url);
-    }
+    private final UserRepository userRepository;
+    private final DeviceRepository deviceRepository;
 
     public boolean exists(UUID userId) {
-        log.info("device-management -> user-management: GET /users/{}", userId);
-        try {
-            users.get().uri("/users/{id}", userId).retrieve().toBodilessEntity();
-            return true;
-        } catch (HttpClientErrorException.NotFound e) {
-            return false;
-        }
+        return userRepository.existsById(userId);
+    }
+
+    public void create(UUID userId) {
+        User user = new User();
+        user.setId(userId);
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void delete(UUID userId) {
+        List<Device> devices = deviceRepository.findByUserId(userId);
+        devices.forEach(d -> d.setUserId(null));
+        deviceRepository.saveAll(devices);
+        userRepository.deleteById(userId);
     }
 }
